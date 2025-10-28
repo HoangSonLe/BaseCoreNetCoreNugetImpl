@@ -1,0 +1,19 @@
+﻿using BaseNetCore.Core.src.Main.Common.Models;
+using BaseSourceImpl.Application.DTOs.User;
+using BaseSourceImpl.Presentation.Models.Requests;
+
+namespace BaseSourceImpl.Application.Services.Interfaces
+{
+    /// <summary>
+    /// IUserService - Business Logic Interface
+    /// Làm việc với DTO (nội bộ) và trả về ViewModel (cho client)
+    /// </summary>
+    public interface IUserService
+    {
+        Task<ValueResponse<UserViewModel>> GetByIdAsync(int id);
+        Task<PageResponse<UserViewModel>> GetPageAsync(UserSearchModel searchModel);
+        Task<UserViewModel> CreateAsync(UserDto dto);
+        Task<UserViewModel> UpdateAsync(UserDto dto);
+        Task<bool> DeleteAsync(int id);
+    }
+}
