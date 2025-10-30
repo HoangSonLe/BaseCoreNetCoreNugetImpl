@@ -2,11 +2,10 @@
 using BaseNetCore.Core.src.Main.DAL.Models.Specification;
 using BaseNetCore.Core.src.Main.Utils;
 using BaseSourceImpl.Domains.Entities.User;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
-namespace BaseSourceImpl.Application.Services.Implementations.User
+namespace BaseSourceImpl.Application.Services.User
 {
-    public static class UserSpecifications
+    public static class AuthSpecifications
     {
         /// <summary>
         /// Get user by ID

@@ -1,11 +1,12 @@
 using AutoMapper;
 using BaseNetCore.Core.src.Main.Common.Models;
 using BaseSourceImpl.Application.DTOs.User;
-using BaseSourceImpl.Application.Services.Interfaces;
-using BaseSourceImpl.Presentation.Models.Requests;
+using BaseSourceImpl.Application.Services.User;
+using BaseSourceImpl.Presentation.Controllers.User.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BaseSourceImpl.Presentation.Controllers
+namespace BaseSourceImpl.Presentation.Controllers.User
 {
     /// <summary>
     /// UserController - API Endpoints
@@ -13,6 +14,7 @@ namespace BaseSourceImpl.Presentation.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // Yêu c?u JWT token cho t?t c? endpoints
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -49,9 +51,10 @@ namespace BaseSourceImpl.Presentation.Controllers
         }
 
         /// <summary>
-        /// T?o user m?i
+        /// T?o user m?i - Public endpoint (ví d?: ??ng ký)
         /// </summary>
         [HttpPost]
+        [AllowAnonymous] // Cho phép t?o user mà không c?n token (??ng ký)
         public async Task Create([FromBody] CreateUserRequest request)
         {
             // Map Request -> DTO using AutoMapper

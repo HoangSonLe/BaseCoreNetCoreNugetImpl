@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BaseSourceImpl.Application.DTOs.User;
+using BaseSourceImpl.Domains.Entities.RefreshToken;
 using BaseSourceImpl.Domains.Entities.User;
 
 namespace BaseSourceImpl.Application.Mappings

@@ -2,7 +2,7 @@
 using BaseNetCore.Core.src.Main.Common.Interfaces;
 using System.Net;
 
-namespace BaseSourceImpl.Common.ErrorCodes.User
+namespace BaseSourceImpl.Common.ErrorCodes
 {
     public class UserErrorCodes : IErrorCode
     {
@@ -17,10 +17,10 @@ namespace BaseSourceImpl.Common.ErrorCodes.User
 
         // Define your custom error codes
         public static readonly UserErrorCodes USER_NOT_FOUND =
-            new UserErrorCodes("PRD001", "Người dùng không tồn tại");
+            new UserErrorCodes("USER_001", "Người dùng không tồn tại");
 
         public static readonly UserErrorCodes USER_DUPLICATE =
-             new UserErrorCodes("PRD004", "Người dùng đã tồn tại");
+             new UserErrorCodes("USER_002", "Người dùng đã tồn tại");
     }
     public class UserDuplicateException : BaseApplicationException
     {
@@ -34,5 +34,18 @@ namespace BaseSourceImpl.Common.ErrorCodes.User
         {
         }
     }
+    public class UserNotFoundException : BaseApplicationException
+    {
+        public UserNotFoundException()
+             : base(UserErrorCodes.USER_NOT_FOUND, UserErrorCodes.USER_NOT_FOUND.Message, HttpStatusCode.NotFound)
+        {
+        }
+
+        public UserNotFoundException(string message)
+                : base(UserErrorCodes.USER_NOT_FOUND, message, HttpStatusCode.NotFound)
+        {
+        }
+    }
+
 
 }

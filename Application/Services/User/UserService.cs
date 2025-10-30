@@ -1,25 +1,28 @@
 using AutoMapper;
+using BaseNetCore.Core.src.Main.BLL.Helpers;
+using BaseNetCore.Core.src.Main.BLL.Services;
 using BaseNetCore.Core.src.Main.Common.Exceptions;
 using BaseNetCore.Core.src.Main.Common.Models;
 using BaseNetCore.Core.src.Main.DAL.Repository;
+using BaseNetCore.Core.src.Main.Security.Algorithm;
 using BaseSourceImpl.Application.DTOs.User;
-using BaseSourceImpl.Application.Services.Interfaces;
-using BaseSourceImpl.Common.ErrorCodes.User;
+using BaseSourceImpl.Common.ErrorCodes;
 using BaseSourceImpl.Domains.Entities.User;
-using BaseSourceImpl.Presentation.Models.Requests;
+using BaseSourceImpl.Presentation.Controllers.User.Models;
 
-namespace BaseSourceImpl.Application.Services.Implementations.User
+namespace BaseSourceImpl.Application.Services.User
 {
     /// <summary>
     /// UserService Implementation
     /// Business Logic Layer - S? d?ng AutoMapper
     /// </summary>
-    public class UserService : IUserService
+    public class UserService : BaseService<UserEntity>, IUserService
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IMapper mapper,IUnitOfWork unitOfWork)
+        public UserService(IMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+            : base(unitOfWork, httpContextAccessor)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -29,7 +32,7 @@ namespace BaseSourceImpl.Application.Services.Implementations.User
         {
             var entity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
             if (entity == null)
-                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND,$"User with ID {id} not found");
+                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {id} not found");
 
             return new ValueResponse<UserViewModel>(_mapper.Map<UserViewModel>(entity));
         }
@@ -37,7 +40,7 @@ namespace BaseSourceImpl.Application.Services.Implementations.User
 
         public async Task<PageResponse<UserViewModel>> GetPageAsync(UserSearchModel searchModel)
         {
-            var spec = UserSpecifications.PagingSpecification(searchModel.SearchText, searchModel.CurrentPage, searchModel.Size);
+            var spec = AuthSpecifications.PagingSpecification(searchModel.SearchText, searchModel.CurrentPage, searchModel.Size);
             var pageResponse = await _unitOfWork.Repository<UserEntity>().GetWithPagingAsync(spec);
             return new PageResponse<UserViewModel>(_mapper.Map<List<UserViewModel>>(pageResponse.Data), pageResponse.Success, pageResponse.Total, pageResponse.CurrentPage, pageResponse.PageSize);
         }
@@ -52,12 +55,11 @@ namespace BaseSourceImpl.Application.Services.Implementations.User
                     throw new UserDuplicateException($"Username '{dto.UserName}' already exists");
 
                 // Hash password
-                dto.Password = HashPassword(dto.Password);
-                dto.CreatedDate = DateTime.UtcNow;
-                dto.CreatedBy = 1; // TODO: Get current user
+                dto.Password = PasswordEncoder.Encode(dto.Password);
 
                 // Map DTO -> Entity
                 var entity = _mapper.Map<UserEntity>(dto);
+                AuditHelper.SetCreateAudit(entity, CurrentUserId);
 
                 // Save
                 userRepository.Add(entity);
@@ -75,7 +77,7 @@ namespace BaseSourceImpl.Application.Services.Implementations.User
         {
             var entity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(dto.Id);
             if (entity == null)
-                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND,$"User with ID {dto.Id} not found", System.Net.HttpStatusCode.NotFound);
+                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {dto.Id} not found", System.Net.HttpStatusCode.NotFound);
 
             // Map DTO -> Entity (ch? update các fields ???c phép)
             _mapper.Map(dto, entity);
@@ -90,23 +92,12 @@ namespace BaseSourceImpl.Application.Services.Implementations.User
         {
             var entity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
             if (entity == null)
-                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND,$"User with ID {id} not found");
+                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {id} not found");
 
             await _unitOfWork.Repository<UserEntity>().DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
-        #region Helper Methods
-
-        private string HashPassword(string password)
-        {
-            // TODO: Implement BCrypt or Argon2
-            // Install: dotnet add package BCrypt.Net-Next
-            // return BCrypt.Net.BCrypt.HashPassword(password);
-            return password; // TEMPORARY - Replace in production
-        }
-
-        #endregion
     }
 }

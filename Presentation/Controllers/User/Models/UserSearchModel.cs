@@ -1,6 +1,6 @@
 ﻿using BaseNetCore.Core.src.Main.Common.Models;
 
-namespace BaseSourceImpl.Presentation.Models.Requests
+namespace BaseSourceImpl.Presentation.Controllers.User.Models
 {
     public class UserSearchModel : PageRequest
     {

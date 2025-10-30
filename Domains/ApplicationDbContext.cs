@@ -1,7 +1,8 @@
 ﻿using BaseNetCore.Core.src.Main.Common.Enums;
+using BaseNetCore.Core.src.Main.DAL.Models.Entities;
 using BaseNetCore.Core.src.Main.Database.PostgresSQL;
 using BaseNetCore.Core.src.Main.Utils;
-using BaseNetCore.Core.src.Main.DAL.Models.Entities;
+using BaseSourceImpl.Domains.Entities.RefreshToken;
 using BaseSourceImpl.Domains.Entities.User;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,17 +16,19 @@ namespace BaseSourceImpl.Domains
         {
         }
         public virtual DbSet<UserEntity> Users { get; set; }
+        public virtual DbSet<RefreshTokenEntity> RefreshTokenEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
             modelBuilder.ApplyConfiguration(new UserEntityConfigurations());
+            modelBuilder.ApplyConfiguration(new RefreshTokenEntityConfigurations());
             modelBuilder.Entity<UserEntity>().HasData(
                 new UserEntity()
                 {
                     Id = 1,
                     UserName = "Admin",
-                    Password = "/cA7ZZQqtyOGVwe1kEbPSg==", //123456
+                    Password = "$2a$10$eEuboxhND2XMLkDzekp51eTVeeLhXWPkHbF5hOFyCif9nnINow9/G",//123456
                     Name = "Admin",
                     Phone = "",
                     TypeAccount = Common.Enums.ETypeAccount.ADMIN,
@@ -40,7 +43,7 @@ namespace BaseSourceImpl.Domains
                 {
                     Id = 2,
                     UserName = "Dev",
-                    Password = "/cA7ZZQqtyOGVwe1kEbPSg==", //123456
+                    Password = "$2a$10$eEuboxhND2XMLkDzekp51eTVeeLhXWPkHbF5hOFyCif9nnINow9/G",//123456
                     Name = "Dev",
                     Phone = "",
                     TypeAccount = Common.Enums.ETypeAccount.DEV,

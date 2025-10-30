@@ -1,6 +1,6 @@
 using AutoMapper;
 using BaseSourceImpl.Application.DTOs.User;
-using BaseSourceImpl.Presentation.Models.Requests;
+using BaseSourceImpl.Presentation.Controllers.User.Models;
 
 namespace BaseSourceImpl.Presentation.Mappings
 {

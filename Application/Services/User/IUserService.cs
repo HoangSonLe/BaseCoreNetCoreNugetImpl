@@ -1,8 +1,8 @@
 ﻿using BaseNetCore.Core.src.Main.Common.Models;
 using BaseSourceImpl.Application.DTOs.User;
-using BaseSourceImpl.Presentation.Models.Requests;
+using BaseSourceImpl.Presentation.Controllers.User.Models;
 
-namespace BaseSourceImpl.Application.Services.Interfaces
+namespace BaseSourceImpl.Application.Services.User
 {
     /// <summary>
     /// IUserService - Business Logic Interface

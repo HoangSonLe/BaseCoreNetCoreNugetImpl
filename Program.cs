@@ -2,8 +2,9 @@ using BaseNetCore.Core.src.Main.DAL.Repository;
 using BaseNetCore.Core.src.Main.Database.PostgresSQL;
 using BaseNetCore.Core.src.Main.Extensions;
 using BaseSourceImpl.Application.Mappings;
-using BaseSourceImpl.Application.Services.Implementations.User;
-using BaseSourceImpl.Application.Services.Interfaces;
+using BaseSourceImpl.Application.Services.Auth;
+using BaseSourceImpl.Application.Services.TokenSession;
+using BaseSourceImpl.Application.Services.User;
 using BaseSourceImpl.Domains;
 using BaseSourceImpl.Presentation.Mappings;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +56,7 @@ try
     #endregion
 
     builder.Services.AddBaseNetCoreFeaturesWithAuth(builder.Configuration);
+    builder.Services.AddScoped<ITokenSessionService, TokenSessionService>();
 
     #region SWAGGER
     builder.Services.AddEndpointsApiExplorer();
@@ -107,6 +109,12 @@ try
     builder.Logging.AddDebug();
     builder.Logging.AddConsole();
     builder.Logging.SetMinimumLevel(LogLevel.Trace);
+    // Add these filters to get IdentityModel and JwtBearer details:
+    builder.Logging.AddFilter("Microsoft", LogLevel.Debug);
+    builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication", LogLevel.Debug);
+    builder.Logging.AddFilter("System.IdentityModel.Tokens.Jwt", LogLevel.Debug);
+    builder.Logging.AddFilter("Microsoft.IdentityModel", LogLevel.Debug);
+
     builder.Host.UseNLog();
     #endregion
 
@@ -121,10 +129,11 @@ try
 
     // Application Layer - Services (AutoMapper injected automatically)
     builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddScoped<IAuthService, AuthService>();
 
     #endregion
 
-    #region APP CONFIGURATION
+    #region APP CONFIGURATION   
     var app = builder.Build();
     var environment = app.Environment;
 

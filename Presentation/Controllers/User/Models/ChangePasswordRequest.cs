@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BaseSourceImpl.Presentation.Models.Requests
+namespace BaseSourceImpl.Presentation.Controllers.User.Models
 {
     /// <summary>
     /// ChangePasswordRequest - Request model ?? ??i password
