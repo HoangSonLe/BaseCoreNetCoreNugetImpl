@@ -3,6 +3,7 @@ using BaseNetCore.Core.src.Main.BLL.Services;
 using BaseNetCore.Core.src.Main.Common.Exceptions;
 using BaseNetCore.Core.src.Main.Common.Models;
 using BaseNetCore.Core.src.Main.DAL.Repository;
+using BaseNetCore.Core.src.Main.Security;
 using BaseNetCore.Core.src.Main.Security.Algorithm;
 using BaseNetCore.Core.src.Main.Security.Token;
 using BaseSourceImpl.Application.Services.TokenSession;

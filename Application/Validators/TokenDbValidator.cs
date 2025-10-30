@@ -1,8 +1,6 @@
-﻿using BaseNetCore.Core.src.Main.Common.Enums;
-using BaseNetCore.Core.src.Main.DAL.Repository;
+﻿using BaseNetCore.Core.src.Main.DAL.Repository;
 using BaseNetCore.Core.src.Main.Security.Token;
 using BaseSourceImpl.Application.Services.TokenSession;
-using BaseSourceImpl.Domains.Entities.User;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
@@ -10,16 +8,12 @@ namespace BaseSourceImpl.Application.Validators
 {
     public class TokenDbValidator : ITokenValidator
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenService _tokenService;
-        private readonly IMemoryCache _cache;
         private readonly ITokenSessionService _sessionService;
 
         public TokenDbValidator(IUnitOfWork unitOfWork, ITokenService tokenService, IMemoryCache cache, ITokenSessionService sessionService)
         {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
         }
 
