@@ -6,7 +6,9 @@ using BaseNetCore.Core.src.Main.DAL.Repository;
 using BaseNetCore.Core.src.Main.Security;
 using BaseNetCore.Core.src.Main.Security.Algorithm;
 using BaseNetCore.Core.src.Main.Security.Token;
+using BaseSourceImpl.Application.DTOs.User;
 using BaseSourceImpl.Application.Services.TokenSession;
+using BaseSourceImpl.Application.Services.User;
 using BaseSourceImpl.Common.ErrorCodes;
 using BaseSourceImpl.Domains.Entities.RefreshToken;
 using BaseSourceImpl.Domains.Entities.User;
@@ -25,6 +27,7 @@ namespace BaseSourceImpl.Application.Services.Auth
     {
         private readonly AesAlgorithm _aes;
         private readonly ITokenService _tokenService;
+        private readonly IUserService _userService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenSessionService _sessionService;
@@ -33,6 +36,7 @@ namespace BaseSourceImpl.Application.Services.Auth
             IMapper mapper,
             IUnitOfWork unitOfWork,
             ITokenService tokenService,
+            IUserService userService,
             IHttpContextAccessor httpContextAccessor,
             AesAlgorithm aesAlgorithm,
             IMemoryCache cache,
@@ -40,6 +44,7 @@ namespace BaseSourceImpl.Application.Services.Auth
             : base(unitOfWork, httpContextAccessor)
         {
             _tokenService = tokenService;
+            _userService = userService;
             _unitOfWork = unitOfWork;
             _aes = aesAlgorithm;
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -48,16 +53,13 @@ namespace BaseSourceImpl.Application.Services.Auth
 
         public async Task<ValueResponse<JwtToken>> Login(LoginRequest loginRequest)
         {
-            var userEntity = await _unitOfWork.Repository<UserEntity>()
-                .FindAsync(u => u.UserName == loginRequest.UserName);
-            if (userEntity == null)
-                throw new UserNotFoundException($"User with username '{loginRequest.UserName}' not found.");
+            UserViewModel userViewModel = (await _userService.GetByUserNameAsync(loginRequest.UserName)).Value;
 
-            if (!PasswordEncoder.Verify(loginRequest.Password, userEntity.Password))
+            if (!PasswordEncoder.Verify(loginRequest.Password, userViewModel.Password))
                 throw new InvalidCredentialException();
 
             var sid = Guid.NewGuid().ToString();
-            var claims = BuildUserClaims(userEntity, sid);
+            var claims = BuildUserClaims(userViewModel, sid);
 
             var access = _tokenService.GenerateAccessToken(claims);
             var refresh = _tokenService.GenerateRefreshToken(claims);
@@ -68,7 +70,7 @@ namespace BaseSourceImpl.Application.Services.Auth
             {
                 Token = refresh,
                 SessionId = sid,
-                UserId = userEntity.Id.ToString(),
+                UserId = userViewModel.Id.ToString(),
                 IsValid = true,
                 ExpiresAt = DateTime.SpecifyKind(expiresUtc, DateTimeKind.Utc)
             };
@@ -79,8 +81,8 @@ namespace BaseSourceImpl.Application.Services.Auth
             {
                 AccessToken = access,
                 RefreshToken = refresh,
-                UserId = _aes.Encrypt(userEntity.Id.ToString()),
-                UserName = userEntity.UserName
+                UserId = _aes.Encrypt(userViewModel.Id.ToString()),
+                UserName = userViewModel.UserName
             };
 
             return new ValueResponse<JwtToken>(jwtToken);
@@ -146,8 +148,7 @@ namespace BaseSourceImpl.Application.Services.Auth
         }
 
         // --- Helpers ---
-
-        private List<Claim> BuildUserClaims(UserEntity user, string? sid = null)
+        private List<Claim> BuildUserClaims(UserViewModel user, string? sid = null)
         {
             var claims = new List<Claim>
             {
@@ -164,33 +165,6 @@ namespace BaseSourceImpl.Application.Services.Auth
             }
 
             return claims;
-        }
-
-        private (string access, string refresh, string sid, DateTime expiresUtc) GenerateTokensAndSessionData(IEnumerable<Claim> claims)
-        {
-            var access = _tokenService.GenerateAccessToken(claims);
-            var refresh = _tokenService.GenerateRefreshToken(claims);
-
-            var (sid, expiresUtc) = ParseSidAndExpiry(refresh);
-            if (string.IsNullOrEmpty(sid)) sid = Guid.NewGuid().ToString();
-
-            return (access, refresh, sid, expiresUtc);
-        }
-
-        private (string sid, DateTime expiresUtc) ParseSidAndExpiry(string jwt)
-        {
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var token = handler.ReadJwtToken(jwt);
-                var sid = token.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
-                var expires = token.ValidTo; // UTC
-                return (sid ?? string.Empty, expires);
-            }
-            catch
-            {
-                return (string.Empty, DateTime.UtcNow.AddSeconds(60));
-            }
         }
 
         private string? TryExtractSidFromCurrentRequest()

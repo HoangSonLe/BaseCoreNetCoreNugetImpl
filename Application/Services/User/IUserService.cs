@@ -11,6 +11,7 @@ namespace BaseSourceImpl.Application.Services.User
     public interface IUserService
     {
         Task<ValueResponse<UserViewModel>> GetByIdAsync(int id);
+        Task<ValueResponse<UserViewModel>> GetByUserNameAsync(string userName);
         Task<PageResponse<UserViewModel>> GetPageAsync(UserSearchModel searchModel);
         Task<UserViewModel> CreateAsync(UserDto dto);
         Task<UserViewModel> UpdateAsync(UserDto dto);

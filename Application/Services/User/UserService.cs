@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using BaseNetCore.Core.src.Main.BLL.Helpers;
 using BaseNetCore.Core.src.Main.BLL.Services;
 using BaseNetCore.Core.src.Main.Common.Exceptions;
@@ -9,12 +9,14 @@ using BaseSourceImpl.Application.DTOs.User;
 using BaseSourceImpl.Common.ErrorCodes;
 using BaseSourceImpl.Domains.Entities.User;
 using BaseSourceImpl.Presentation.Controllers.User.Models;
+using BaseSourceImpl.Domains.Entities.UserRole;
+using System.Linq;
 
 namespace BaseSourceImpl.Application.Services.User
 {
     /// <summary>
     /// UserService Implementation
-    /// Business Logic Layer - S? d?ng AutoMapper
+    /// Business Logic Layer - Sử dụng AutoMapper
     /// </summary>
     public class UserService : BaseService<UserEntity>, IUserService
     {
@@ -30,13 +32,35 @@ namespace BaseSourceImpl.Application.Services.User
 
         public async Task<ValueResponse<UserViewModel>> GetByIdAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
-            if (entity == null)
+            UserEntity userEntity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
+            if (userEntity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {id} not found");
 
-            return new ValueResponse<UserViewModel>(_mapper.Map<UserViewModel>(entity));
+            // populate role ids for view model
+            var userRoles = await _unitOfWork.Repository<UserRoleEntity>().GetAllAsync(ur => ur.UserId == userEntity.Id);
+            var roleIds = userRoles?.Select(ur => ur.RoleId).Distinct().ToList() ?? new List<int>();
+
+            var vm = _mapper.Map<UserViewModel>(userEntity);
+            vm.RoleIdList = roleIds;
+
+            return new ValueResponse<UserViewModel>(vm);
         }
 
+        public async Task<ValueResponse<UserViewModel>> GetByUserNameAsync(string userName)
+        {
+            UserEntity userEntity = await _unitOfWork.Repository<UserEntity>().FindAsync(i => i.UserName == userName);
+            if (userEntity == null)
+                throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with UserName {userName} not found");
+
+            // load role ids for the user and map into the view model
+            var userRoles = await _unitOfWork.Repository<UserRoleEntity>().GetAllAsync(ur => ur.UserId == userEntity.Id);
+            var roleIds = userRoles?.Select(ur => ur.RoleId).Distinct().ToList() ?? new List<int>();
+
+            var vm = _mapper.Map<UserViewModel>(userEntity);
+            vm.RoleIdList = roleIds;
+
+            return new ValueResponse<UserViewModel>(vm);
+        }
 
         public async Task<PageResponse<UserViewModel>> GetPageAsync(UserSearchModel searchModel)
         {
@@ -79,7 +103,7 @@ namespace BaseSourceImpl.Application.Services.User
             if (entity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {dto.Id} not found", System.Net.HttpStatusCode.NotFound);
 
-            // Map DTO -> Entity (ch? update c�c fields ???c ph�p)
+            // Map DTO -> Entity (chỉ update các fields được phép)
             _mapper.Map(dto, entity);
 
             _unitOfWork.Repository<UserEntity>().Update(entity);

@@ -1,10 +1,7 @@
 ﻿using BaseNetCore.Core.src.Main.DAL.Repository;
 using BaseSourceImpl.Domains.Entities.RefreshToken;
 using Microsoft.Extensions.Caching.Memory;
-using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BaseSourceImpl.Application.Services.TokenSession
 {
@@ -18,27 +15,6 @@ namespace BaseSourceImpl.Application.Services.TokenSession
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        }
-
-        public async Task<RefreshTokenEntity> CreateSessionAsync(string refreshToken, string userId)
-        {
-            var (sid, expires) = ParseSidAndExpiry(refreshToken);
-            if (string.IsNullOrEmpty(sid)) sid = Guid.NewGuid().ToString();
-
-            var entity = new RefreshTokenEntity
-            {
-                Token = refreshToken,
-                SessionId = sid,
-                UserId = userId,
-                IsValid = true,
-                ExpiresAt = new DateTimeOffset(DateTime.SpecifyKind(expires, DateTimeKind.Utc))
-            };
-
-            _unitOfWork.Repository<RefreshTokenEntity>().Add(entity);
-            await _unitOfWork.SaveChangesAsync();
-
-            CacheSession(sid, entity.ExpiresAt);
-            return entity;
         }
 
         public async Task RefreshSessionAsync(RefreshTokenEntity existing, string newRefreshToken)
@@ -116,20 +92,7 @@ namespace BaseSourceImpl.Application.Services.TokenSession
 
             return valid;
         }
-
-        public async Task<bool> HasValidSessionsForUserAsync(string userId)
-        {
-            if (string.IsNullOrEmpty(userId)) return false;
-            var cacheKey = $"user_session_valid:{userId}";
-            if (_cache.TryGetValue(cacheKey, out bool cached)) return cached;
-
-            var has = await _unitOfWork.Repository<RefreshTokenEntity>()
-                .FindAsync(r => r.UserId == userId && r.IsValid && (!r.ExpiresAt.HasValue || r.ExpiresAt.Value.UtcDateTime > DateTime.UtcNow)) != null;
-
-            _cache.Set(cacheKey, has, TimeSpan.FromSeconds(60));
-            return has;
-        }
-
+        
         // --- helpers ---
 
         private static (string sid, DateTime expiresUtc) ParseSidAndExpiry(string jwt)

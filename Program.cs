@@ -3,6 +3,7 @@ using BaseNetCore.Core.src.Main.Database.PostgresSQL;
 using BaseNetCore.Core.src.Main.Extensions;
 using BaseSourceImpl.Application.Mappings;
 using BaseSourceImpl.Application.Services.Auth;
+using BaseSourceImpl.Application.Services.Permission;
 using BaseSourceImpl.Application.Services.TokenSession;
 using BaseSourceImpl.Application.Services.User;
 using BaseSourceImpl.Domains;
@@ -55,8 +56,14 @@ try
     builder.Services.AddControllersWithViews();
     #endregion
 
+    #region CORE SETTING
     builder.Services.AddBaseNetCoreFeaturesWithAuth(builder.Configuration);
     builder.Services.AddScoped<ITokenSessionService, TokenSessionService>();
+    builder.Services.AddScoped<IPermissionService, PermissionService>();
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddCoreDynamicAuthorization();
+
+    #endregion
 
     #region SWAGGER
     builder.Services.AddEndpointsApiExplorer();
@@ -179,6 +186,7 @@ try
    .AllowCredentials());
 
     app.UseBaseNetCoreMiddlewareWithAuth();
+    app.UseCoreDynamicPermissionMiddleware();
 
     // Map controllers
     app.MapControllers();

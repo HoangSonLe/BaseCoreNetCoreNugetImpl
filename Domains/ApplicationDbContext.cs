@@ -2,8 +2,12 @@
 using BaseNetCore.Core.src.Main.DAL.Models.Entities;
 using BaseNetCore.Core.src.Main.Database.PostgresSQL;
 using BaseNetCore.Core.src.Main.Utils;
+using BaseSourceImpl.Domains.Entities.Permission;
 using BaseSourceImpl.Domains.Entities.RefreshToken;
+using BaseSourceImpl.Domains.Entities.Role;
+using BaseSourceImpl.Domains.Entities.RolePermisson;
 using BaseSourceImpl.Domains.Entities.User;
+using BaseSourceImpl.Domains.Entities.UserRole;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseSourceImpl.Domains
@@ -23,6 +27,13 @@ namespace BaseSourceImpl.Domains
 
             modelBuilder.ApplyConfiguration(new UserEntityConfigurations());
             modelBuilder.ApplyConfiguration(new RefreshTokenEntityConfigurations());
+            modelBuilder.ApplyConfiguration(new RoleEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new PermissionEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new UserRoleEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new RolePermissionEntityConfiguration());
+
+
+
             modelBuilder.Entity<UserEntity>().HasData(
                 new UserEntity()
                 {
@@ -32,7 +43,6 @@ namespace BaseSourceImpl.Domains
                     Name = "Admin",
                     Phone = "",
                     TypeAccount = Common.Enums.ETypeAccount.ADMIN,
-                    RoleIdList = new List<int>() { 1, 2, 3, 4 },
                     CreatedBy = 1,
                     CreatedDate = DateTime.Now,
                     State = EState.Active,
@@ -47,12 +57,84 @@ namespace BaseSourceImpl.Domains
                     Name = "Dev",
                     Phone = "",
                     TypeAccount = Common.Enums.ETypeAccount.DEV,
-                    RoleIdList = new List<int>() { 1, 2, 3, 4 },
                     CreatedBy = 1,
                     CreatedDate = DateTime.Now,
                     State = EState.Active,
                     Email = "",
                     NonUnicodeSearchString = SearchFieldUtils.NormalizeSearchText("Dev")
+                }
+            );
+            modelBuilder.Entity<RoleEntity>().HasData(
+                new RoleEntity()
+                {
+                    Id = 1,
+                    Name = "Administrator",
+                    Code = "ADMIN",
+                    Description = "Role with full permissions",
+                },
+                new RoleEntity()
+                {
+                    Id = 2,
+                    Name = "Developer",
+                    Code = "DEV",
+                    Description = "Role for development purposes",
+                }
+            );
+            modelBuilder.Entity<UserRoleEntity>().HasData(
+                new UserRoleEntity()
+                {
+                    UserId = 1,
+                    RoleId = 1,
+                },
+                new UserRoleEntity()
+                {
+                    UserId = 2,
+                    RoleId = 2,
+                }
+            );
+            modelBuilder.Entity<PermissionEntity>().HasData(
+                new PermissionEntity()
+                {
+                    Id = 1,
+                    Name = "Read User",
+                    Code = "USER_READ",
+                    Description = "Read User",
+                },
+                new PermissionEntity()
+                {
+                    Id = 2,
+                    Name = "Write User",
+                    Code = "USER_WRITE",
+                    Description = "Write User",
+                },
+                new PermissionEntity()
+                {
+                    Id = 3,
+                    Name = "Delete User",
+                    Code = "USER_DELETE",
+                    Description = "Delete User",
+                }
+            );
+            modelBuilder.Entity<RolePermissionEntity>().HasData(
+                new RolePermissionEntity()
+                {
+                    RoleId = 1,
+                    PermissionId = 1,
+                },
+                new RolePermissionEntity()
+                {
+                    RoleId = 1,
+                    PermissionId = 2,
+                },
+                new RolePermissionEntity()
+                {
+                    RoleId = 1,
+                    PermissionId = 3,
+                },
+                new RolePermissionEntity()
+                {
+                    RoleId = 2,
+                    PermissionId = 1,
                 }
             );
 

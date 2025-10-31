@@ -24,7 +24,7 @@ namespace BaseSourceImpl.Domains.Entities.RefreshToken
             builder.HasIndex(p => p.SessionId);
 
             // Table
-            builder.ToTable("RefreshToken");
+            builder.ToTable("RefreshTokens");
         }
     }
 }

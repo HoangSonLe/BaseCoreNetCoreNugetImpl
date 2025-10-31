@@ -12,8 +12,6 @@ namespace BaseSourceImpl.Presentation.Controllers.Auth
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IMapper _mapper;
-        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
         IAuthService authService,
@@ -21,11 +19,9 @@ namespace BaseSourceImpl.Presentation.Controllers.Auth
         ILogger<AuthController> logger)
         {
             _authService = authService;
-            _mapper = mapper;
-            _logger = logger;
         }
-
         [HttpPost]
+        [AllowAnonymous]
         [Route("login")]
         public async Task<ValueResponse<JwtToken>> Login([FromBody] LoginRequest request)
         {

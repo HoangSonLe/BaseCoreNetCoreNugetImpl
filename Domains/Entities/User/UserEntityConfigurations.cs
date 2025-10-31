@@ -17,7 +17,6 @@ namespace BaseSourceImpl.Domains.Entities.User
             builder.Property(p => p.Email).HasColumnName("Email");
             builder.Property(p => p.Phone).HasColumnName("Phone");
             builder.Property(p => p.TypeAccount).HasColumnName("TypeAccount");
-            builder.Property(p => p.RoleIdList).HasColumnName("RoleIdList");
 
 
             builder.Property(p => p.State).HasColumnName("State");

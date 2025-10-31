@@ -1,6 +1,7 @@
 using BaseNetCore.Core.src.Main.Common.Attributes;
 using BaseNetCore.Core.src.Main.DAL.Models.Entities;
 using BaseSourceImpl.Common.Enums;
+using BaseSourceImpl.Domains.Entities.UserRole;
 using System.ComponentModel.DataAnnotations;
 
 namespace BaseSourceImpl.Domains.Entities.User
@@ -27,8 +28,10 @@ namespace BaseSourceImpl.Domains.Entities.User
         [SearchableField]
         public string Phone { get; set; }
 
-        public List<int> RoleIdList { get; set; }
+        //public List<int> RoleIdList { get; set; }
 
         public ETypeAccount TypeAccount { get; set; }
+
+        public ICollection<UserRoleEntity> UserRoles { get; set; } = new List<UserRoleEntity>();
     }
 }

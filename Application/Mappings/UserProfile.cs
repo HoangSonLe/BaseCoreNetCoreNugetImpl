@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BaseSourceImpl.Application.DTOs.User;
-using BaseSourceImpl.Domains.Entities.RefreshToken;
 using BaseSourceImpl.Domains.Entities.User;
 
 namespace BaseSourceImpl.Application.Mappings
@@ -14,14 +13,10 @@ namespace BaseSourceImpl.Application.Mappings
         public UserProfile()
         {
             // Entity <-> DTO (Business Logic Layer)
-            CreateMap<UserEntity, UserDto>()
-               .ForMember(dest => dest.RoleIdList, opt => opt.MapFrom(src => src.RoleIdList ?? new List<int>()))
-               .ReverseMap()
-               .ForMember(dest => dest.RoleIdList, opt => opt.MapFrom(src => src.RoleIdList ?? new List<int>()));
+            CreateMap<UserEntity, UserDto>().ReverseMap();
 
             // Entity -> ViewModel (Client Response)
-            CreateMap<UserEntity, UserViewModel>()
-                .ForMember(dest => dest.RoleIdList, opt => opt.MapFrom(src => src.RoleIdList ?? new List<int>()));
+            CreateMap<UserEntity, UserViewModel>();
 
             // DTO -> ViewModel (Alternative path)
             CreateMap<UserDto, UserViewModel>();

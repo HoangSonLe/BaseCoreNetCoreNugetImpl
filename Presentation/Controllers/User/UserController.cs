@@ -54,7 +54,6 @@ namespace BaseSourceImpl.Presentation.Controllers.User
         /// T?o user m?i - Public endpoint (ví d?: ??ng ký)
         /// </summary>
         [HttpPost]
-        [AllowAnonymous] // Cho phép t?o user mà không c?n token (??ng ký)
         public async Task Create([FromBody] CreateUserRequest request)
         {
             // Map Request -> DTO using AutoMapper
@@ -81,6 +80,26 @@ namespace BaseSourceImpl.Presentation.Controllers.User
         public async Task Delete(int id)
         {
             await _userService.DeleteAsync(id);
+        }
+
+        
+        [HttpGet("test")]
+        public async Task TestPermission(int id)
+        {
+
+        }
+        [HttpGet("test/ABC")]
+        public async Task TestABCPermission(int id)
+        {
+
+        }
+
+        [AllowAnonymous]
+        [HttpGet("anonymous-test")] 
+        
+        public async Task TestAllowAnonymous(int id)
+        {
+
         }
     }
 }
