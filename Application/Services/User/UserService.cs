@@ -21,23 +21,21 @@ namespace BaseSourceImpl.Application.Services.User
     public class UserService : BaseService<UserEntity>, IUserService
     {
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
 
         public UserService(IMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
             : base(unitOfWork, httpContextAccessor)
         {
             _mapper = mapper;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<ValueResponse<UserViewModel>> GetByIdAsync(int id)
         {
-            UserEntity userEntity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
+            UserEntity userEntity = await UnitOfWork.Repository<UserEntity>().GetByIdAsync(id);
             if (userEntity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {id} not found");
 
             // populate role ids for view model
-            var userRoles = await _unitOfWork.Repository<UserRoleEntity>().GetAllAsync(ur => ur.UserId == userEntity.Id);
+            var userRoles = await UnitOfWork.Repository<UserRoleEntity>().GetAllAsync(ur => ur.UserId == userEntity.Id);
             var roleIds = userRoles?.Select(ur => ur.RoleId).Distinct().ToList() ?? new List<int>();
 
             var vm = _mapper.Map<UserViewModel>(userEntity);
@@ -48,12 +46,12 @@ namespace BaseSourceImpl.Application.Services.User
 
         public async Task<ValueResponse<UserViewModel>> GetByUserNameAsync(string userName)
         {
-            UserEntity userEntity = await _unitOfWork.Repository<UserEntity>().FindAsync(i => i.UserName == userName);
+            UserEntity userEntity = await UnitOfWork.Repository<UserEntity>().FindAsync(i => i.UserName == userName);
             if (userEntity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with UserName {userName} not found");
 
             // load role ids for the user and map into the view model
-            var userRoles = await _unitOfWork.Repository<UserRoleEntity>().GetAllAsync(ur => ur.UserId == userEntity.Id);
+            var userRoles = await UnitOfWork.Repository<UserRoleEntity>().GetAllAsync(ur => ur.UserId == userEntity.Id);
             var roleIds = userRoles?.Select(ur => ur.RoleId).Distinct().ToList() ?? new List<int>();
 
             var vm = _mapper.Map<UserViewModel>(userEntity);
@@ -65,7 +63,7 @@ namespace BaseSourceImpl.Application.Services.User
         public async Task<PageResponse<UserViewModel>> GetPageAsync(UserSearchModel searchModel)
         {
             var spec = AuthSpecifications.PagingSpecification(searchModel.SearchText, searchModel.CurrentPage, searchModel.Size);
-            var pageResponse = await _unitOfWork.Repository<UserEntity>().GetWithPagingAsync(spec);
+            var pageResponse = await UnitOfWork.Repository<UserEntity>().GetWithPagingAsync(spec);
             return new PageResponse<UserViewModel>(_mapper.Map<List<UserViewModel>>(pageResponse.Data), pageResponse.Success, pageResponse.Total, pageResponse.CurrentPage, pageResponse.PageSize);
         }
 
@@ -74,7 +72,7 @@ namespace BaseSourceImpl.Application.Services.User
             try
             {
                 // Validate
-                var userRepository = _unitOfWork.Repository<UserEntity>();
+                var userRepository = UnitOfWork.Repository<UserEntity>();
                 if (await userRepository.AnyAsync(i => i.UserName == dto.UserName))
                     throw new UserDuplicateException($"Username '{dto.UserName}' already exists");
 
@@ -87,7 +85,7 @@ namespace BaseSourceImpl.Application.Services.User
 
                 // Save
                 userRepository.Add(entity);
-                await _unitOfWork.SaveChangesAsync();
+                await UnitOfWork.SaveChangesAsync();
 
                 return _mapper.Map<UserViewModel>(entity);
             }
@@ -99,27 +97,27 @@ namespace BaseSourceImpl.Application.Services.User
 
         public async Task<UserViewModel> UpdateAsync(UserDto dto)
         {
-            var entity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(dto.Id);
+            var entity = await UnitOfWork.Repository<UserEntity>().GetByIdAsync(dto.Id);
             if (entity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {dto.Id} not found", System.Net.HttpStatusCode.NotFound);
 
             // Map DTO -> Entity (chỉ update các fields được phép)
             _mapper.Map(dto, entity);
 
-            _unitOfWork.Repository<UserEntity>().Update(entity);
-            await _unitOfWork.SaveChangesAsync();
+            UnitOfWork.Repository<UserEntity>().Update(entity);
+            await UnitOfWork.SaveChangesAsync();
 
             return _mapper.Map<UserViewModel>(entity);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
+            var entity = await UnitOfWork.Repository<UserEntity>().GetByIdAsync(id);
             if (entity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {id} not found");
 
-            await _unitOfWork.Repository<UserEntity>().DeleteAsync(id);
-            await _unitOfWork.SaveChangesAsync();
+            await UnitOfWork.Repository<UserEntity>().DeleteAsync(id);
+            await UnitOfWork.SaveChangesAsync();
             return true;
         }
 

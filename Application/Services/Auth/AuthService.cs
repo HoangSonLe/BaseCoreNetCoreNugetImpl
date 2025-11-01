@@ -28,8 +28,6 @@ namespace BaseSourceImpl.Application.Services.Auth
         private readonly AesAlgorithm _aes;
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenSessionService _sessionService;
 
         public AuthService(
@@ -45,9 +43,7 @@ namespace BaseSourceImpl.Application.Services.Auth
         {
             _tokenService = tokenService;
             _userService = userService;
-            _unitOfWork = unitOfWork;
             _aes = aesAlgorithm;
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
         }
 
@@ -74,8 +70,8 @@ namespace BaseSourceImpl.Application.Services.Auth
                 IsValid = true,
                 ExpiresAt = DateTime.SpecifyKind(expiresUtc, DateTimeKind.Utc)
             };
-            _unitOfWork.Repository<RefreshTokenEntity>().Add(refreshEntity);
-            await _unitOfWork.SaveChangesAsync();
+            UnitOfWork.Repository<RefreshTokenEntity>().Add(refreshEntity);
+            await UnitOfWork.SaveChangesAsync();
 
             var jwtToken = new JwtToken
             {
@@ -93,7 +89,7 @@ namespace BaseSourceImpl.Application.Services.Auth
             var principal = _tokenService.ValidateToken(refreshToken);
             if (principal == null) throw new InvalidCredentialException();
 
-            var refreshEntity = await _unitOfWork.Repository<RefreshTokenEntity>()
+            var refreshEntity = await UnitOfWork.Repository<RefreshTokenEntity>()
                 .FindAsync(i => i.Token == refreshToken && i.IsValid);
             if (refreshEntity == null) throw new InvalidCredentialException();
 
@@ -171,7 +167,7 @@ namespace BaseSourceImpl.Application.Services.Auth
         {
             try
             {
-                var authHeader = _httpContextAccessor.HttpContext?.Request?.Headers["Authorization"].FirstOrDefault();
+                var authHeader = HttpContextAccessor.HttpContext?.Request?.Headers["Authorization"].FirstOrDefault();
                 if (string.IsNullOrEmpty(authHeader)) return null;
 
                 const string bearerPrefix = "Bearer ";
