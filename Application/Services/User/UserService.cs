@@ -30,7 +30,7 @@ namespace BaseSourceImpl.Application.Services.User
 
         public async Task<ValueResponse<UserViewModel>> GetByIdAsync(int id)
         {
-            UserEntity userEntity = await UnitOfWork.Repository<UserEntity>().GetByIdAsync(id);
+            UserEntity userEntity = await UnitOfWork.Repository<UserEntity>().FindAsync(i => i.Id == id);
             if (userEntity == null)
                 throw new BaseApplicationException(UserErrorCodes.USER_NOT_FOUND, $"User with ID {id} not found");
 
