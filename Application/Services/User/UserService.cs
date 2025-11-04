@@ -8,9 +8,8 @@ using BaseNetCore.Core.src.Main.Security.Algorithm;
 using BaseSourceImpl.Application.DTOs.User;
 using BaseSourceImpl.Common.ErrorCodes;
 using BaseSourceImpl.Domains.Entities.User;
-using BaseSourceImpl.Presentation.Controllers.User.Models;
 using BaseSourceImpl.Domains.Entities.UserRole;
-using System.Linq;
+using BaseSourceImpl.Presentation.Controllers.User.Models;
 
 namespace BaseSourceImpl.Application.Services.User
 {

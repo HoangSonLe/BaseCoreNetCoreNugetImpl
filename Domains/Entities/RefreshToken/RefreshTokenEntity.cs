@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace BaseSourceImpl.Domains.Entities.RefreshToken

@@ -82,7 +82,7 @@ namespace BaseSourceImpl.Presentation.Controllers.User
             await _userService.DeleteAsync(id);
         }
 
-        
+
         [HttpGet("test")]
         public async Task TestPermission(int id)
         {
@@ -95,8 +95,8 @@ namespace BaseSourceImpl.Presentation.Controllers.User
         }
 
         [AllowAnonymous]
-        [HttpGet("anonymous-test")] 
-        
+        [HttpGet("anonymous-test")]
+
         public async Task TestAllowAnonymous(int id)
         {
 

@@ -4,7 +4,7 @@ using BaseSourceImpl.Domains.Entities.User;
 
 namespace BaseSourceImpl.Domains.Entities.UserRole
 {
-    public class UserRoleEntity :BaseAuditableEntity
+    public class UserRoleEntity : BaseAuditableEntity
     {
         public int UserId { get; set; }
         public int RoleId { get; set; }

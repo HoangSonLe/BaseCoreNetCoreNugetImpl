@@ -20,5 +20,5 @@ namespace BaseSourceImpl.Domains.Entities.Role
             builder.ToTable("Roles");
         }
     }
-    
+
 }

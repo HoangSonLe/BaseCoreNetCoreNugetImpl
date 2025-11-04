@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using BaseSourceImpl.Domains.Entities.RefreshToken;
+﻿using BaseSourceImpl.Domains.Entities.RefreshToken;
 
 namespace BaseSourceImpl.Application.Services.TokenSession
 {

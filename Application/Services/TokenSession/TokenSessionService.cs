@@ -92,7 +92,7 @@ namespace BaseSourceImpl.Application.Services.TokenSession
 
             return valid;
         }
-        
+
         // --- helpers ---
 
         private static (string sid, DateTime expiresUtc) ParseSidAndExpiry(string jwt)

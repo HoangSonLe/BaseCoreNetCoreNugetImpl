@@ -1,5 +1,5 @@
 ﻿using BaseNetCore.Core.src.Main.DAL.Repository;
-using BaseNetCore.Core.src.Main.Security.Token;
+using BaseNetCore.Core.src.Main.Extensions.Token;
 using BaseSourceImpl.Application.Services.TokenSession;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
