@@ -27,6 +27,11 @@ namespace BaseSourceImpl.Application.Services.User
             _mapper = mapper;
         }
 
+        public async Task<ValueResponse<UserViewModel>> GetCurrentUserInfo()
+        {
+            return await GetByIdAsync(CurrentUserId);
+        }
+
         public async Task<ValueResponse<UserViewModel>> GetByIdAsync(int id)
         {
             UserEntity userEntity = await UnitOfWork.Repository<UserEntity>().FindAsync(i => i.Id == id);

@@ -34,6 +34,16 @@ namespace BaseSourceImpl.Presentation.Controllers.User
         /// <summary>
         /// L?y user theo ID
         /// </summary>
+        [HttpGet("me")]
+        public async Task<ValueResponse<UserViewModel>> GetCurrentUserInfo()
+        {
+            return await _userService.GetCurrentUserInfo();
+        }
+
+
+        /// <summary>
+        /// L?y user theo ID
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ValueResponse<UserViewModel>> GetById(int id)
         {

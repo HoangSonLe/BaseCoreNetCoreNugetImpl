@@ -113,6 +113,13 @@ namespace BaseSourceImpl.Domains
                     Name = "Delete User",
                     Code = "USER_DELETE",
                     Description = "Delete User",
+                },
+                new PermissionEntity()
+                {
+                    Id = 4,
+                    Name = "Read Permission",
+                    Code = "PERMISSION_READ",
+                    Description = "Read Permission",
                 }
             );
             modelBuilder.Entity<RolePermissionEntity>().HasData(

@@ -10,6 +10,7 @@ namespace BaseSourceImpl.Application.Services.User
     /// </summary>
     public interface IUserService
     {
+        Task<ValueResponse<UserViewModel>> GetCurrentUserInfo();
         Task<ValueResponse<UserViewModel>> GetByIdAsync(int id);
         Task<ValueResponse<UserViewModel>> GetByUserNameAsync(string userName);
         Task<PageResponse<UserViewModel>> GetPageAsync(UserSearchModel searchModel);
